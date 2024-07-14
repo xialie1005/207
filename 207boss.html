@@ -343,4 +343,6 @@
 
         teams[bossIndex].forEach((team, teamIndex) => {
           const tdTeam = document.createElement('td');
-          tdTeam.className
+          tdTeam.className = `border border-gray-300 px-4 py-2 ${teamColors[team]}`;
+          tdTeam.textContent = team;
+          tr.appendChild(td
