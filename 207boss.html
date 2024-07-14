@@ -46,27 +46,26 @@
     .lg\:w-1\/3 { width: 33.333333%; }
   </style>
   <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
-  <script src="https://www.gstatic.com/firebasejs/9.8.1/firebase-app.js"></script>
-  <!-- Add Firebase products that you want to use -->
-  <script src="https://www.gstatic.com/firebasejs/9.8.1/firebase-database.js"></script>
-</head>
-<body class="bg-gray-100 p-6">
-  <div id="app"></div>
-  <script>
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+
     // Your web app's Firebase configuration
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_AUTH_DOMAIN",
-      databaseURL: "https://boss-1d999-default-rtdb.asia-southeast1.firebasedatabase.app/",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_STORAGE_BUCKET",
-      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-      appId: "YOUR_APP_ID"
+      apiKey: "AIzaSyCO5FnvsXrPxAZixIKyndN4VNftAtOJNV4",
+      authDomain: "boss-1d999.firebaseapp.com",
+      databaseURL: "https://boss-1d999-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "boss-1d999",
+      storageBucket: "boss-1d999.appspot.com",
+      messagingSenderId: "975631006776",
+      appId: "1:975631006776:web:b5519a33506573eb50bacd",
+      measurementId: "G-NSCH643TXN"
     };
 
     // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
     const calculateTimeLeft = (targetTime) => {
       const difference = +targetTime - +new Date();
@@ -116,7 +115,7 @@
       resetButton.textContent = '重置倒計時';
       resetButton.onclick = async () => {
         targetTime = new Date(new Date().getTime() + initialTime);
-        await db.ref('bossTimers/' + bossName).set({
+        await set(ref(db, 'bossTimers/' + bossName), {
           targetTime: targetTime.toString()
         });
         onReset(bossName);
@@ -131,12 +130,12 @@
       let targetTime;
 
       const fetchTargetTime = async () => {
-        const snapshot = await db.ref('bossTimers/' + bossName).once('value');
+        const snapshot = await get(child(ref(db), 'bossTimers/' + bossName));
         if (snapshot.exists()) {
           targetTime = new Date(snapshot.val().targetTime);
         } else {
           targetTime = new Date(new Date().getTime() + initialTime);
-          await db.ref('bossTimers/' + bossName).set({
+          await set(ref(db, 'bossTimers/' + bossName), {
             targetTime: targetTime.toString()
           });
         }
@@ -346,7 +345,4 @@
       { name: 'KON' },
     ];
 
-    document.getElementById('app').appendChild(createBossTimers());
-  </script>
-</body>
-</html>
+    document.getElementById('app').append
