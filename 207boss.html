@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>九之王BOSS刷新倒計時</title>
+  <title>糙你媽刷新BOSS表</title>
   <style>
     .bg-red-100 { background-color: #fee2e2; }
     .bg-orange-100 { background-color: #ffedd5; }
@@ -99,7 +99,6 @@
         targetTime = new Date(new Date().getTime() + initialTime);
         localStorage.setItem(bossName, targetTime.toString());
         onReset();
-        handleReset(bossName);
       };
       container.appendChild(resetButton);
 
@@ -177,7 +176,7 @@
       container.appendChild(timersContainer);
 
       bosses.forEach((boss, index) => {
-        const timer = createBossTimer(boss.name, boss.refreshTime, teams[index][0], () => handleReset(index));
+        const timer = createBossTimer(boss.name, boss.refreshTime, teams[index][0], () => handleReset(boss.name));
         timersContainer.appendChild(timer);
       });
 
