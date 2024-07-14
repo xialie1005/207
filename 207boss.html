@@ -70,22 +70,6 @@
       });
     };
 
-    const fetchBossTimes = async () => {
-      const response = await fetch('/api/boss-times');
-      const data = await response.json();
-      return data;
-    };
-
-    const setBossTime = async (bossName, time) => {
-      await fetch('/api/set-boss-time', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ bossName, time }),
-      });
-    };
-
     const createBossTimer = (bossName, initialTime, team, onReset) => {
       const container = document.createElement('div');
       container.className = 'flex flex-col items-center mb-6 p-4 bg-white shadow-md rounded-lg w-full';
@@ -111,10 +95,13 @@
       const resetButton = document.createElement('button');
       resetButton.className = 'px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300';
       resetButton.textContent = '重置倒計時';
-      resetButton.onclick = async () => {
-        targetTime = new Date(new Date().getTime() + initialTime);
-        await setBossTime(bossName, targetTime.toString());
-        onReset();
+      resetButton.onclick = () => {
+        fetch(`/api/reset?boss=${bossName}`, { method: 'POST' })
+          .then(response => response.json())
+          .then(data => {
+            targetTime = new Date(data.targetTime);
+            onReset();
+          });
       };
       container.appendChild(resetButton);
 
@@ -123,7 +110,16 @@
       audio.preload = 'auto';
       container.appendChild(audio);
 
-      let targetTime = new Date(initialTime);
+      let targetTime = new Date();
+
+      const fetchInitialTime = () => {
+        fetch(`/api/time?boss=${bossName}`)
+          .then(response => response.json())
+          .then(data => {
+            targetTime = new Date(data.targetTime);
+            updateTimer();
+          });
+      };
 
       const updateTimer = () => {
         const timeLeft = calculateTimeLeft(targetTime);
@@ -140,12 +136,12 @@
       };
 
       setInterval(updateTimer, 1000);
-      updateTimer();
+      fetchInitialTime();
 
       return container;
     };
 
-    const createBossTimers = async () => {
+    const createBossTimers = () => {
       const bosses = [
         { name: 'cave 1', refreshTime: 12 * 60 * 60 * 1000 },
         { name: 'cave 2', refreshTime: 12 * 60 * 60 * 1000 },
@@ -191,10 +187,8 @@
       timersContainer.className = 'flex flex-wrap justify-center w-full';
       container.appendChild(timersContainer);
 
-      const bossTimes = await fetchBossTimes();
-
       bosses.forEach((boss, index) => {
-        const timer = createBossTimer(boss.name, bossTimes[boss.name] || new Date().getTime() + boss.refreshTime, teams[index][0], () => handleReset(index));
+        const timer = createBossTimer(boss.name, boss.refreshTime, teams[index][0], () => handleReset(index));
         timersContainer.appendChild(timer);
       });
 
@@ -267,7 +261,7 @@
       return container;
     };
 
-    const handleReset = async (bossIndex) => {
+    const handleReset = (bossIndex) => {
       const newTeams = [...teams];
       const currentTeams = newTeams[bossIndex];
       const rotateCount = ['cave 3 left', 'cave 3 right', 'cave 4 up', 'cave 4 down'].includes(currentTeams[0]) ? 2 : 1;
@@ -332,7 +326,7 @@
 
     let teams = [];
 
-    document.getElementById('app').appendChild(await createBossTimers());
+    document.getElementById('app').appendChild(createBossTimers());
   </script>
 </body>
 </html>
