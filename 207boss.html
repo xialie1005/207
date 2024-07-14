@@ -96,10 +96,12 @@
       resetButton.className = 'px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300';
       resetButton.textContent = '重置倒計時';
       resetButton.onclick = () => {
-        fetch(`/api/reset?boss=${bossName}`, { method: 'POST' })
+        targetTime = new Date(new Date().getTime() + initialTime);
+        fetch(`/api/reset?boss=${bossName}&time=${targetTime.toISOString()}`, { method: 'POST' })
           .then(response => response.json())
           .then(data => {
             targetTime = new Date(data.targetTime);
+            localStorage.setItem(bossName, targetTime.toString());
             onReset();
           });
       };
@@ -110,7 +112,7 @@
       audio.preload = 'auto';
       container.appendChild(audio);
 
-      let targetTime = new Date();
+      let targetTime = new Date(localStorage.getItem(bossName) || new Date().getTime() + initialTime);
 
       const fetchInitialTime = () => {
         fetch(`/api/time?boss=${bossName}`)
