@@ -160,7 +160,7 @@
         return team;
       });
 
-      const teams = mergedTeams;
+      teams = mergedTeams;
 
       const container = document.createElement('div');
       container.className = 'flex flex-col items-center justify-center h-screen bg-gray-100 p-6';
@@ -259,8 +259,55 @@
       }
       newTeams[bossIndex] = currentTeams;
       teams = newTeams;
-      document.getElementById('app').innerHTML = '';
-      document.getElementById('app').appendChild(createBossTimers());
+      updateTable();
+    };
+
+    const updateTable = () => {
+      const tableContainer = document.querySelector('#app table tbody');
+      tableContainer.innerHTML = '';
+      
+      const teamColors = {
+        'PromiseLand': 'bg-red-100',
+        'Redfox': 'bg-orange-100',
+        '大同大不同': 'bg-yellow-100',
+        'NPH': 'bg-green-100',
+        'SPT': 'bg-teal-100',
+        '畫墨閣': 'bg-blue-100',
+        'xPHxElite': 'bg-indigo-100',
+        'SHICHIBUKAI': 'bg-purple-100',
+        'YOUZi': 'bg-pink-100',
+        '待更改': 'bg-gray-100',
+      };
+
+      const bosses = [
+        { name: 'cave 1' },
+        { name: 'cave 2' },
+        { name: 'cave 3 left' },
+        { name: 'cave 3 right' },
+        { name: 'cave 4 up' },
+        { name: 'cave 4 down' },
+        { name: 'cave 5' },
+        { name: 'cave 6' },
+        { name: 'KON' },
+      ];
+
+      bosses.forEach((boss, bossIndex) => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-gray-100';
+        tableContainer.appendChild(tr);
+
+        const tdBoss = document.createElement('td');
+        tdBoss.className = 'border border-gray-300 px-4 py-2 text-gray-700';
+        tdBoss.textContent = boss.name;
+        tr.appendChild(tdBoss);
+
+        teams[bossIndex].forEach((team, teamIndex) => {
+          const tdTeam = document.createElement('td');
+          tdTeam.className = `border border-gray-300 px-4 py-2 ${teamColors[team]}`;
+          tdTeam.textContent = team;
+          tr.appendChild(tdTeam);
+        });
+      });
     };
 
     let teams = [];
