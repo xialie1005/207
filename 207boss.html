@@ -97,14 +97,9 @@
       resetButton.textContent = '重置倒計時';
       resetButton.onclick = () => {
         targetTime = new Date(new Date().getTime() + initialTime);
-        fetch(`/api/reset?boss=${bossName}&time=${targetTime.toISOString()}`, { method: 'POST' })
-          .then(response => response.json())
-          .then(data => {
-            targetTime = new Date(data.targetTime);
-            localStorage.setItem(bossName, targetTime.toString());
-            onReset();
-            handleReset(bossName);
-          });
+        localStorage.setItem(bossName, targetTime.toString());
+        onReset();
+        handleReset(bossName);
       };
       container.appendChild(resetButton);
 
@@ -114,15 +109,6 @@
       container.appendChild(audio);
 
       let targetTime = new Date(localStorage.getItem(bossName) || new Date().getTime() + initialTime);
-
-      const fetchInitialTime = () => {
-        fetch(`/api/time?boss=${bossName}`)
-          .then(response => response.json())
-          .then(data => {
-            targetTime = new Date(data.targetTime);
-            updateTimer();
-          });
-      };
 
       const updateTimer = () => {
         const timeLeft = calculateTimeLeft(targetTime);
@@ -139,7 +125,7 @@
       };
 
       setInterval(updateTimer, 1000);
-      fetchInitialTime();
+      updateTimer();
 
       return container;
     };
