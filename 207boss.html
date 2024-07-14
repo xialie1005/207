@@ -77,18 +77,30 @@
     };
 
     const fetchBossTimers = async () => {
-      const response = await fetch('/api/boss-timers');
-      return response.json();
+      try {
+        const response = await fetch('/api/boss-timers');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      } catch (error) {
+        console.error('Error fetching boss timers:', error);
+        return [];
+      }
     };
 
     const updateBossTimer = async (bossName, targetTime) => {
-      await fetch('/api/boss-timers', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ bossName, targetTime }),
-      });
+      try {
+        await fetch('/api/boss-timers', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ bossName, targetTime }),
+        });
+      } catch (error) {
+        console.error('Error updating boss timer:', error);
+      }
     };
 
     const createBossTimer = (bossName, initialTime, team, onReset) => {
@@ -340,4 +352,5 @@
 
     let teams = [];
     const bosses = [
-      { name: '
+      { name: 'cave 1' },
+      { name: 'cave 2' },
