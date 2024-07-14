@@ -70,51 +70,65 @@
       });
     };
 
-    const BossTimer = ({ bossName, initialTime, team, onReset }) => {
-      const [targetTime, setTargetTime] = React.useState(new Date(new Date().getTime() + initialTime));
-      const [timeLeft, setTimeLeft] = React.useState(calculateTimeLeft(targetTime));
-      const audioRef = React.useRef(null);
+    const createBossTimer = (bossName, initialTime, team, onReset) => {
+      const container = document.createElement('div');
+      container.className = 'flex flex-col items-center mb-6 p-4 bg-white shadow-md rounded-lg w-full';
 
-      React.useEffect(() => {
-        const timer = setTimeout(() => {
-          setTimeLeft(calculateTimeLeft(targetTime));
-        }, 1000);
+      const title = document.createElement('h2');
+      title.className = 'text-2xl font-bold mb-2 text-gray-800';
+      title.textContent = bossName;
+      container.appendChild(title);
 
-        if (Object.keys(timeLeft).length === 0 && audioRef.current) {
-          audioRef.current.play();
-        }
+      const refreshTime = document.createElement('div');
+      refreshTime.className = 'text-lg mb-2 text-gray-600';
+      container.appendChild(refreshTime);
 
-        return () => clearTimeout(timer);
-      }, [targetTime, timeLeft]);
+      const timerDisplay = document.createElement('div');
+      timerDisplay.className = 'text-xl text-gray-700 mb-2';
+      container.appendChild(timerDisplay);
 
-      const resetTimer = () => {
-        setTargetTime(new Date(new Date().getTime() + initialTime));
+      const teamDisplay = document.createElement('div');
+      teamDisplay.className = 'text-lg font-semibold text-gray-800 mb-2';
+      teamDisplay.textContent = `隊伍: ${team}`;
+      container.appendChild(teamDisplay);
+
+      const resetButton = document.createElement('button');
+      resetButton.className = 'px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300';
+      resetButton.textContent = '重置倒計時';
+      resetButton.onclick = () => {
+        targetTime = new Date(new Date().getTime() + initialTime);
         onReset();
       };
+      container.appendChild(resetButton);
 
-      const timerComponents = [];
+      const audio = document.createElement('audio');
+      audio.src = 'path/to/in-the-end-chorus.mp3';
+      audio.preload = 'auto';
+      container.appendChild(audio);
 
-      Object.keys(timeLeft).forEach((interval) => {
-        if (!timeLeft[interval]) {
-          return;
+      let targetTime = new Date(new Date().getTime() + initialTime);
+
+      const updateTimer = () => {
+        const timeLeft = calculateTimeLeft(targetTime);
+        refreshTime.textContent = `刷新時間: ${formatDateTime(targetTime)}`;
+
+        if (Object.keys(timeLeft).length === 0) {
+          timerDisplay.textContent = 'BOSS已刷新!';
+          timerDisplay.className = 'text-xl text-green-600 mb-2';
+          audio.play();
+        } else {
+          timerDisplay.textContent = `${timeLeft.hours} hours ${timeLeft.minutes} minutes`;
+          timerDisplay.className = 'text-xl text-gray-700 mb-2';
         }
+      };
 
-        timerComponents.push(
-          React.createElement('span', { key: interval, className: 'text-lg font-semibold' }, `${timeLeft[interval]} ${interval} `)
-        );
-      });
+      setInterval(updateTimer, 1000);
+      updateTimer();
 
-      return React.createElement('div', { className: 'flex flex-col items-center mb-6 p-4 bg-white shadow-md rounded-lg w-full' },
-        React.createElement('h2', { className: 'text-2xl font-bold mb-2 text-gray-800' }, bossName),
-        React.createElement('div', { className: 'text-lg mb-2 text-gray-600' }, `刷新時間: ${formatDateTime(targetTime)}`),
-        timerComponents.length ? React.createElement('div', { className: 'text-xl text-gray-700 mb-2' }, timerComponents) : React.createElement('span', { className: 'text-xl text-green-600 mb-2' }, 'BOSS已刷新!'),
-        React.createElement('div', { className: 'text-lg font-semibold text-gray-800 mb-2' }, `隊伍: ${team}`),
-        React.createElement('button', { onClick: resetTimer, className: 'px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300' }, '重置倒計時'),
-        React.createElement('audio', { ref: audioRef, src: 'path/to/in-the-end-chorus.mp3', preload: 'auto' })
-      );
+      return container;
     };
 
-    const BossTimers = () => {
+    const createBossTimers = () => {
       const bosses = [
         { name: 'cave 1', refreshTime: 12 * 60 * 60 * 1000 },
         { name: 'cave 2', refreshTime: 12 * 60 * 60 * 1000 },
@@ -146,28 +160,59 @@
         return team;
       });
 
-      const [teams, setTeams] = React.useState(mergedTeams);
+      const teams = mergedTeams;
 
-      const handleTeamChange = (bossIndex, teamIndex, value) => {
-        const newTeams = [...teams];
-        newTeams[bossIndex][teamIndex] = value;
-        setTeams(newTeams);
-      };
+      const container = document.createElement('div');
+      container.className = 'flex flex-col items-center justify-center h-screen bg-gray-100 p-6';
 
-      const handleReset = (bossIndex) => {
-        const newTeams = [...teams];
-        const currentTeams = newTeams[bossIndex];
-        for (let i = 0; i < 2; i++) {
-          const firstTeam = currentTeams.shift();
-          if (firstTeam) {
-            currentTeams.push(firstTeam);
-          }
-        }
-        newTeams[bossIndex] = currentTeams;
-        setTeams(newTeams);
-      };
+      const title = document.createElement('h1');
+      title.className = 'text-4xl font-bold mb-6 text-gray-800';
+      title.textContent = '九之王BOSS刷新倒計時';
+      container.appendChild(title);
 
-      const teamOptions = ['PromiseLand', 'Redfox', '大同大不同', 'NPH', 'SPT', '畫墨閣', 'xPHxElite', 'SHICHIBUKAI', 'YOUZi', '待更改'];
+      const timersContainer = document.createElement('div');
+      timersContainer.className = 'flex flex-wrap justify-center w-full';
+      container.appendChild(timersContainer);
+
+      bosses.forEach((boss, index) => {
+        const timer = createBossTimer(boss.name, boss.refreshTime, teams[index][0], () => handleReset(index));
+        timersContainer.appendChild(timer);
+      });
+
+      const tableContainer = document.createElement('div');
+      tableContainer.className = 'w-full mt-8';
+      container.appendChild(tableContainer);
+
+      const tableTitle = document.createElement('h2');
+      tableTitle.className = 'text-2xl font-bold mb-4 text-gray-800';
+      tableTitle.textContent = '隊伍BOSS刷新時間表';
+      tableContainer.appendChild(tableTitle);
+
+      const table = document.createElement('table');
+      table.className = 'table-auto border-collapse border border-gray-400 w-full bg-white shadow-md rounded-lg';
+      tableContainer.appendChild(table);
+
+      const thead = document.createElement('thead');
+      table.appendChild(thead);
+
+      const tr = document.createElement('tr');
+      tr.className = 'bg-gray-200';
+      thead.appendChild(tr);
+
+      const thBoss = document.createElement('th');
+      thBoss.className = 'border border-gray-300 px-4 py-2 text-left';
+      thBoss.textContent = 'BOSS';
+      tr.appendChild(thBoss);
+
+      Array.from({ length: 11 }, (_, i) => {
+        const th = document.createElement('th');
+        th.className = 'border border-gray-300 px-4 py-2 text-left';
+        th.textContent = i + 1;
+        tr.appendChild(th);
+      });
+
+      const tbody = document.createElement('tbody');
+      table.appendChild(tbody);
 
       const teamColors = {
         'PromiseLand': 'bg-red-100',
@@ -182,44 +227,63 @@
         '待更改': 'bg-gray-100',
       };
 
-      return React.createElement('div', { className: 'flex flex-col items-center justify-center h-screen bg-gray-100 p-6' },
-        React.createElement('h1', { className: 'text-4xl font-bold mb-6 text-gray-800' }, '九之王BOSS刷新倒計時'),
-        React.createElement('div', { className: 'flex flex-wrap justify-center w-full' },
-          bosses.map((boss, index) => React.createElement('div', { key: boss.name, className: 'w-full sm:w-1/2 lg:w-1/3 p-2' },
-            React.createElement(BossTimer, { bossName: boss.name, initialTime: boss.refreshTime, team: teams[index][0], onReset: () => handleReset(index) })
-          ))
-        ),
-        React.createElement('div', { className: 'w-full mt-8' },
-          React.createElement('h2', { className: 'text-2xl font-bold mb-4 text-gray-800' }, '隊伍BOSS刷新時間表'),
-          React.createElement('table', { className: 'table-auto border-collapse border border-gray-400 w-full bg-white shadow-md rounded-lg' },
-            React.createElement('thead', null,
-              React.createElement('tr', { className: 'bg-gray-200' },
-                React.createElement('th', { className: 'border border-gray-300 px-4 py-2 text-left' }, 'BOSS'),
-                Array.from({ length: 11 }, (_, i) => React.createElement('th', { key: i, className: 'border border-gray-300 px-4 py-2 text-left' }, i + 1))
-              )
-            ),
-            React.createElement('tbody', null,
-              bosses.map((boss, bossIndex) => React.createElement('tr', { key: boss.name, className: 'hover:bg-gray-100' },
-                React.createElement('td', { className: 'border border-gray-300 px-4 py-2 text-gray-700' }, boss.name),
-                teams[bossIndex].map((team, teamIndex) => React.createElement('td', { key: teamIndex, className: `border border-gray-300 px-4 py-2 ${teamColors[team]}` },
-                  React.createElement('select', {
-                    value: team,
-                    onChange: (e) => handleTeamChange(bossIndex, teamIndex, e.target.value),
-                    className: `w-full ${teamColors[team]}`
-                  },
-                    teamOptions.map((option, index) => React.createElement('option', { key: index, value: option, className: teamColors[option] }, option))
-                  )
-                ))
-              ))
-            )
-          )
-        )
-      );
+      bosses.forEach((boss, bossIndex) => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-gray-100';
+        tbody.appendChild(tr);
+
+        const tdBoss = document.createElement('td');
+        tdBoss.className = 'border border-gray-300 px-4 py-2 text-gray-700';
+        tdBoss.textContent = boss.name;
+        tr.appendChild(tdBoss);
+
+        teams[bossIndex].forEach((team, teamIndex) => {
+          const tdTeam = document.createElement('td');
+          tdTeam.className = `border border-gray-300 px-4 py-2 ${teamColors[team]}`;
+          tr.appendChild(tdTeam);
+
+          const select = document.createElement('select');
+          select.className = `w-full ${teamColors[team]}`;
+          select.value = team;
+          select.onchange = (e) => handleTeamChange(bossIndex, teamIndex, e.target.value);
+          tdTeam.appendChild(select);
+
+          const teamOptions = ['PromiseLand', 'Redfox', '大同大不同', 'NPH', 'SPT', '畫墨閣', 'xPHxElite', 'SHICHIBUKAI', 'YOUZi', '待更改'];
+          teamOptions.forEach((option) => {
+            const optionElement = document.createElement('option');
+            optionElement.className = teamColors[option];
+            optionElement.value = option;
+            optionElement.textContent = option;
+            select.appendChild(optionElement);
+          });
+        });
+      });
+
+      return container;
     };
 
-    ReactDOM.render(React.createElement(BossTimers), document.getElementById('app'));
+    const handleReset = (bossIndex) => {
+      const newTeams = [...teams];
+      const currentTeams = newTeams[bossIndex];
+      for (let i = 0; i < 2; i++) {
+        const firstTeam = currentTeams.shift();
+        if (firstTeam) {
+          currentTeams.push(firstTeam);
+        }
+      }
+      newTeams[bossIndex] = currentTeams;
+      teams = newTeams;
+    };
+
+    const handleTeamChange = (bossIndex, teamIndex, value) => {
+      const newTeams = [...teams];
+      newTeams[bossIndex][teamIndex] = value;
+      teams = newTeams;
+    };
+
+    let teams = [];
+
+    document.getElementById('app').appendChild(createBossTimers());
   </script>
-  <script src="https://unpkg.com/react/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom/umd/react-dom.production.min.js"></script>
 </body>
 </html>
