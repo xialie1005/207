@@ -97,6 +97,7 @@
       resetButton.textContent = '重置倒計時';
       resetButton.onclick = () => {
         targetTime = new Date(new Date().getTime() + initialTime);
+        localStorage.setItem(bossName, targetTime.toString());
         onReset();
       };
       container.appendChild(resetButton);
@@ -106,7 +107,7 @@
       audio.preload = 'auto';
       container.appendChild(audio);
 
-      let targetTime = new Date(new Date().getTime() + initialTime);
+      let targetTime = new Date(localStorage.getItem(bossName) || new Date().getTime() + initialTime);
 
       const updateTimer = () => {
         const timeLeft = calculateTimeLeft(targetTime);
@@ -251,7 +252,8 @@
     const handleReset = (bossIndex) => {
       const newTeams = [...teams];
       const currentTeams = newTeams[bossIndex];
-      for (let i = 0; i < 2; i++) {
+      const rotateCount = ['cave 3 left', 'cave 3 right', 'cave 4 up', 'cave 4 down'].includes(currentTeams[0]) ? 2 : 1;
+      for (let i = 0; i < rotateCount; i++) {
         const firstTeam = currentTeams.shift();
         if (firstTeam) {
           currentTeams.push(firstTeam);
@@ -316,3 +318,4 @@
   </script>
 </body>
 </html>
+
