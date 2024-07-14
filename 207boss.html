@@ -103,6 +103,7 @@
             targetTime = new Date(data.targetTime);
             localStorage.setItem(bossName, targetTime.toString());
             onReset();
+            handleReset(bossName);
           });
       };
       container.appendChild(resetButton);
@@ -263,10 +264,11 @@
       return container;
     };
 
-    const handleReset = (bossIndex) => {
+    const handleReset = (bossName) => {
+      const bossIndex = bosses.findIndex(boss => boss.name === bossName);
       const newTeams = [...teams];
       const currentTeams = newTeams[bossIndex];
-      const rotateCount = ['cave 3 left', 'cave 3 right', 'cave 4 up', 'cave 4 down'].includes(currentTeams[0]) ? 2 : 1;
+      const rotateCount = ['cave 3 left', 'cave 3 right', 'cave 4 up', 'cave 4 down'].includes(bossName) ? 2 : 1;
       for (let i = 0; i < rotateCount; i++) {
         const firstTeam = currentTeams.shift();
         if (firstTeam) {
@@ -327,6 +329,17 @@
     };
 
     let teams = [];
+    const bosses = [
+      { name: 'cave 1' },
+      { name: 'cave 2' },
+      { name: 'cave 3 left' },
+      { name: 'cave 3 right' },
+      { name: 'cave 4 up' },
+      { name: 'cave 4 down' },
+      { name: 'cave 5' },
+      { name: 'cave 6' },
+      { name: 'KON' },
+    ];
 
     document.getElementById('app').appendChild(createBossTimers());
   </script>
