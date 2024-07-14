@@ -48,27 +48,7 @@
 </head>
 <body class="bg-gray-100 p-6">
   <div id="app"></div>
-  <script type="module">
-    // Import the functions you need from the SDKs you need
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-    import { getDatabase, ref, set, get, child, onValue } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
-
-    // Your web app's Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyCO5FnvsXrPxAZixIKyndN4VNftAtOJNV4",
-      authDomain: "boss-1d999.firebaseapp.com",
-      databaseURL: "https://boss-1d999-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "boss-1d999",
-      storageBucket: "boss-1d999.appspot.com",
-      messagingSenderId: "975631006776",
-      appId: "1:975631006776:web:b5519a33506573eb50bacd",
-      measurementId: "G-NSCH643TXN"
-    };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
+  <script>
     const calculateTimeLeft = (targetTime) => {
       const difference = +targetTime - +new Date();
       let timeLeft = {};
@@ -115,11 +95,9 @@
       const resetButton = document.createElement('button');
       resetButton.className = 'px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300';
       resetButton.textContent = '重置倒計時';
-      resetButton.onclick = async () => {
+      resetButton.onclick = () => {
         targetTime = new Date(new Date().getTime() + initialTime);
-        await set(ref(db, 'bossTimers/' + bossName), {
-          targetTime: targetTime.toString()
-        });
+        localStorage.setItem(bossName, targetTime.toString());
         onReset(bossName);
       };
       container.appendChild(resetButton);
@@ -129,20 +107,7 @@
       audio.preload = 'auto';
       container.appendChild(audio);
 
-      let targetTime;
-
-      const fetchTargetTime = async () => {
-        const snapshot = await get(child(ref(db), 'bossTimers/' + bossName));
-        if (snapshot.exists()) {
-          targetTime = new Date(snapshot.val().targetTime);
-        } else {
-          targetTime = new Date(new Date().getTime() + initialTime);
-          await set(ref(db, 'bossTimers/' + bossName), {
-            targetTime: targetTime.toString()
-          });
-        }
-        updateTimer();
-      };
+      let targetTime = new Date(localStorage.getItem(bossName) || new Date().getTime() + initialTime);
 
       const updateTimer = () => {
         const timeLeft = calculateTimeLeft(targetTime);
@@ -159,7 +124,7 @@
       };
 
       setInterval(updateTimer, 1000);
-      fetchTargetTime();
+      updateTimer();
 
       return container;
     };
@@ -342,4 +307,12 @@
       { name: 'cave 3 right' },
       { name: 'cave 4 up' },
       { name: 'cave 4 down' },
-      {
+      { name: 'cave 5' },
+      { name: 'cave 6' },
+      { name: 'KON' },
+    ];
+
+    document.getElementById('app').appendChild(createBossTimers());
+  </script>
+</body>
+</html>
