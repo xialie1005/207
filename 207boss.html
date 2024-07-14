@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>操</title>
+  <title>九之王BOSS刷新倒計時</title>
   <style>
     .bg-red-100 { background-color: #fee2e2; }
     .bg-orange-100 { background-color: #ffedd5; }
@@ -98,7 +98,7 @@
       resetButton.onclick = () => {
         targetTime = new Date(new Date().getTime() + initialTime);
         localStorage.setItem(bossName, targetTime.toString());
-        onReset();
+        onReset(bossName);
       };
       container.appendChild(resetButton);
 
@@ -154,14 +154,7 @@
         ['大同大不同', 'PromiseLand', 'Redfox', 'YOUZi', '大同大不同', 'Redfox'],
       ];
 
-      const mergedTeams = initialTeams.map((team, index) => {
-        if (index === 0 || index === 1) {
-          return ['xPHxElite', 'SHICHIBUKAI', 'PromiseLand', 'Redfox', '大同大不同', 'NPH', '大同大不同', 'SPT', 'YOUZi', 'Redfox', '大同大不同'];
-        }
-        return team;
-      });
-
-      teams = mergedTeams;
+      teams = initialTeams;
 
       const container = document.createElement('div');
       container.className = 'flex flex-col items-center justify-center h-screen bg-gray-100 p-6';
@@ -176,7 +169,7 @@
       container.appendChild(timersContainer);
 
       bosses.forEach((boss, index) => {
-        const timer = createBossTimer(boss.name, boss.refreshTime, teams[index][0], () => handleReset(boss.name));
+        const timer = createBossTimer(boss.name, boss.refreshTime, teams[index][0], handleReset);
         timersContainer.appendChild(timer);
       });
 
@@ -251,8 +244,7 @@
 
     const handleReset = (bossName) => {
       const bossIndex = bosses.findIndex(boss => boss.name === bossName);
-      const newTeams = [...teams];
-      const currentTeams = newTeams[bossIndex];
+      const currentTeams = teams[bossIndex];
       const rotateCount = ['cave 3 left', 'cave 3 right', 'cave 4 up', 'cave 4 down'].includes(bossName) ? 2 : 1;
       for (let i = 0; i < rotateCount; i++) {
         const firstTeam = currentTeams.shift();
@@ -260,8 +252,6 @@
           currentTeams.push(firstTeam);
         }
       }
-      newTeams[bossIndex] = currentTeams;
-      teams = newTeams;
       updateTable();
     };
 
@@ -282,18 +272,6 @@
         '待更改': 'bg-gray-100',
       };
 
-      const bosses = [
-        { name: 'cave 1' },
-        { name: 'cave 2' },
-        { name: 'cave 3 left' },
-        { name: 'cave 3 right' },
-        { name: 'cave 4 up' },
-        { name: 'cave 4 down' },
-        { name: 'cave 5' },
-        { name: 'cave 6' },
-        { name: 'KON' },
-      ];
-
       bosses.forEach((boss, bossIndex) => {
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-gray-100';
@@ -310,6 +288,14 @@
           tdTeam.textContent = team;
           tr.appendChild(tdTeam);
         });
+      });
+
+      // 更新計時器的隊伍顯示
+      const timersContainer = document.querySelectorAll('.flex.flex-col.items-center.mb-6.p-4.bg-white.shadow-md.rounded-lg.w-full');
+      bosses.forEach((boss, index) => {
+        const timer = timersContainer[index];
+        const teamDisplay = timer.querySelector('.text-lg.font-semibold.text-gray-800.mb-2');
+        teamDisplay.textContent = `隊伍: ${teams[index][0]}`;
       });
     };
 
