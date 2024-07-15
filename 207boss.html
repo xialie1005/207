@@ -143,10 +143,11 @@
         }
       };
 
+      const intervalId = setInterval(updateTimer, 1000);
+
       database.ref('bosses/' + bossName).on('value', (snapshot) => {
         targetTime = new Date(snapshot.val() || new Date().getTime() + initialTime);
         updateTimer();
-        setInterval(updateTimer, 1000);
       });
 
       return container;
