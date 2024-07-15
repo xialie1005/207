@@ -165,20 +165,6 @@
         { name: 'KON', refreshTime: 24 * 60 * 60 * 1000 },
       ];
 
-      const initialTeams = [
-        ['xPHxElite', 'SHICHIBUKAI', 'PromiseLand', 'Redfox', '大同大不同', 'NPH', '大同大不同', 'SPT', 'YOUZi', 'Redfox', '大同大不同'],
-        ['xPHxElite', 'SHICHIBUKAI', 'PromiseLand', 'Redfox', '大同大不同', 'NPH', '大同大不同', 'SPT', 'YOUZi', 'Redfox', '大同大不同'],
-        ['xPHxElite', 'SHICHIBUKAI', 'PromiseLand', 'Redfox', '大同大不同', 'NPH', '大同大不同', 'SPT', 'YOUZi', 'Redfox', '大同大不同'],
-        ['xPHxElite', 'SHICHIBUKAI', 'PromiseLand', 'Redfox', '大同大不同', 'NPH', '大同大不同', 'SPT', 'YOUZi', 'Redfox', '大同大不同'],
-        ['xPHxElite', 'SHICHIBUKAI', 'PromiseLand', 'Redfox', '大同大不同', 'NPH', '大同大不同', 'SPT', 'YOUZi', 'Redfox', '大同大不同'],
-        ['xPHxElite', 'SHICHIBUKAI', 'PromiseLand', 'Redfox', '大同大不同', 'NPH', '大同大不同', 'SPT', 'YOUZi', 'Redfox', '大同大不同'],
-        ['xPHxElite', 'SHICHIBUKAI', 'PromiseLand', 'Redfox', '大同大不同', 'NPH', '大同大不同', 'SPT', 'YOUZi', 'Redfox', '大同大不同'],
-        ['大同大不同', '大同大不同', '大同大不同', 'Redfox', '大同大不同', '大同大不同', '大同大不同', 'Redfox'],
-        ['大同大不同', 'PromiseLand', 'Redfox', 'YOUZi', '大同大不同', 'Redfox'],
-      ];
-
-      teams = initialTeams;
-
       const container = document.createElement('div');
       container.className = 'flex flex-col items-center justify-center h-screen bg-gray-100 p-6';
 
@@ -287,6 +273,8 @@
         }
       }
       updateTable();
+      // 保存更新後的隊伍信息到 Firebase
+      database.ref('teams').set(teams);
     };
 
     const updateTable = () => {
@@ -331,9 +319,6 @@
         const teamDisplay = timer.querySelector('.text-lg.font-semibold.text-gray-800.mb-2');
         teamDisplay.textContent = `隊伍: ${teams[index][0]}`;
       });
-
-      // 保存更新後的隊伍信息到 Firebase
-      database.ref('teams').set(teams);
     };
 
     let teams = [];
@@ -363,7 +348,7 @@
             ['xPHxElite', 'SHICHIBUKAI', 'PromiseLand', 'Redfox', '大同大不同', 'NPH', '大同大不同', 'SPT', 'YOUZi', 'Redfox', '大同大不同'],
             ['xPHxElite', 'SHICHIBUKAI', 'PromiseLand', 'Redfox', '大同大不同', 'NPH', '大同大不同', 'SPT', 'YOUZi', 'Redfox', '大同大不同'],
             ['xPHxElite', 'SHICHIBUKAI', 'PromiseLand', 'Redfox', '大同大不同', 'NPH', '大同大不同', 'SPT', 'YOUZi', 'Redfox', '大同大不同'],
-            ['xPHxElite', 'SHICHIBUKAI', 'PromiseLand', 'Redfox', '大同大不同', 'NPH', '大同大不同', 'SPT', 'YOUZi', 'Redfox', '大同大不同'],
+            ['xPHxElite', 'SHICHIBUKAI', 'PromiseLand', 'Redfox', '大同大不同', 'NPH', '大同大不同', 'SPT', 'YOUZi', 'Redfox', '大同大不同'], 
             ['xPHxElite', 'SHICHIBUKAI', 'PromiseLand', 'Redfox', '大同大不同', 'NPH', '大同大不同', 'SPT', 'YOUZi', 'Redfox', '大同大不同'],
             ['大同大不同', '大同大不同', '大同大不同', 'Redfox', '大同大不同', '大同大不同', '大同大不同', 'Redfox'],
             ['大同大不同', 'PromiseLand', 'Redfox', 'YOUZi', '大同大不同', 'Redfox'],
