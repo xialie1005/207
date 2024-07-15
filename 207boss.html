@@ -13,7 +13,7 @@
   <script type="module">
     // Import the functions you need from the SDKs you need
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-    import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-analytics.js";
 
     // Your web app's Firebase configuration
@@ -80,12 +80,12 @@
       resetButton.className = 'px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300';
       resetButton.textContent = '重置倒計時';
       resetButton.onclick = () => {
-        targetTime = new Date(new Date().getTime() + initialTime);
+        const newTargetTime = new Date(new Date().getTime() + initialTime);
         set(ref(database, 'bosses/' + bossName), {
-          targetTime: targetTime.toString(),
+          targetTime: newTargetTime.toISOString(),
           team: team
         });
-        onReset(bossName);
+        onReset(bossName, newTargetTime);
       };
       container.appendChild(resetButton);
 
@@ -94,9 +94,7 @@
       audio.preload = 'auto';
       container.appendChild(audio);
 
-      let targetTime = new Date(localStorage.getItem(bossName) || new Date().getTime() + initialTime);
-
-      const updateTimer = () => {
+      const updateTimer = (targetTime) => {
         const timeLeft = calculateTimeLeft(targetTime);
         refreshTime.textContent = `刷新時間: ${formatDateTime(targetTime)}`;
 
@@ -110,10 +108,7 @@
         }
       };
 
-      setInterval(updateTimer, 1000);
-      updateTimer();
-
-      return container;
+      return { container, updateTimer };
     };
 
     const createBossTimers = () => {
@@ -155,9 +150,10 @@
       timersContainer.className = 'flex flex-wrap justify-center w-full';
       container.appendChild(timersContainer);
 
-      bosses.forEach((boss, index) => {
-        const timer = createBossTimer(boss.name, boss.refreshTime, teams[index][0], handleReset);
-        timersContainer.appendChild(timer);
+      const timers = bosses.map((boss, index) => {
+        const { container, updateTimer } = createBossTimer(boss.name, boss.refreshTime, teams[index][0], handleReset);
+        timersContainer.appendChild(container);
+        return { bossName: boss.name, updateTimer };
       });
 
       const tableContainer = document.createElement('div');
@@ -226,10 +222,10 @@
         });
       });
 
-      return container;
+      return { container, timers };
     };
 
-    const handleReset = (bossName) => {
+    const handleReset = (bossName, newTargetTime) => {
       const bossIndex = bosses.findIndex(boss => boss.name === bossName);
       const currentTeams = teams[bossIndex];
       const rotateCount = ['cave 3 left', 'cave 3 right', 'cave 4 up', 'cave 4 down'].includes(bossName) ? 2 : 1;
@@ -240,6 +236,7 @@
         }
       }
       updateTable();
+      updateTimers(bossName, newTargetTime);
     };
 
     const updateTable = () => {
@@ -286,6 +283,13 @@
       });
     };
 
+    const updateTimers = (bossName, newTargetTime) => {
+      const timer = timers.find(t => t.bossName === bossName);
+      if (timer) {
+        timer.updateTimer(newTargetTime);
+      }
+    };
+
     let teams = [];
     const bosses = [
       { name: 'cave 1' },
@@ -299,21 +303,24 @@
       { name: 'KON' },
     ];
 
+    const { container, timers } = createBossTimers();
+
     // 從 Firebase 獲取 BOSS 刷新時間和隊伍信息
     bosses.forEach(boss => {
       const bossRef = ref(database, 'bosses/' + boss.name);
       onValue(bossRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
-          localStorage.setItem(boss.name, data.targetTime);
+          const targetTime = new Date(data.targetTime);
           const bossIndex = bosses.findIndex(b => b.name === boss.name);
           teams[bossIndex][0] = data.team;
           updateTable();
+          updateTimers(boss.name, targetTime);
         }
       });
     });
 
-    document.getElementById('app').appendChild(createBossTimers());
+    document.getElementById('app').appendChild(container);
   </script>
 </body>
 </html>
