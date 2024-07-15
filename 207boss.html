@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>九之王BOSS刷新倒計時</title>
   <style>
+    /* 样式代码，与之前相同 */
     .bg-red-100 { background-color: #fee2e2; }
     .bg-orange-100 { background-color: #ffedd5; }
     .bg-yellow-100 { background-color: #fef9c3; }
@@ -48,7 +49,26 @@
 </head>
 <body class="bg-gray-100 p-6">
   <div id="app"></div>
+  <!-- 引入 Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
   <script>
+    // Firebase 配置對象
+    const firebaseConfig = {
+      apiKey: "AIzaSyCO5FnvsXrPxAZixIKyndN4VNftAtOJNV4",
+      authDomain: "boss-1d999.firebaseapp.com",
+      databaseURL: "https://boss-1d999-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "boss-1d999",
+      storageBucket: "boss-1d999.appspot.com",
+      messagingSenderId: "975631006776",
+      appId: "1:975631006776:web:b5519a33506573eb50bacd",
+      measurementId: "G-NSCH643TXN"
+    };
+
+    // 初始化 Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
     const calculateTimeLeft = (targetTime) => {
       const difference = +targetTime - +new Date();
       let timeLeft = {};
@@ -97,7 +117,7 @@
       resetButton.textContent = '重置倒計時';
       resetButton.onclick = () => {
         targetTime = new Date(new Date().getTime() + initialTime);
-        localStorage.setItem(bossName, targetTime.toString());
+        database.ref('bosses/' + bossName).set(targetTime.toString());
         onReset(bossName);
       };
       container.appendChild(resetButton);
@@ -107,7 +127,7 @@
       audio.preload = 'auto';
       container.appendChild(audio);
 
-      let targetTime = new Date(localStorage.getItem(bossName) || new Date().getTime() + initialTime);
+      let targetTime;
 
       const updateTimer = () => {
         const timeLeft = calculateTimeLeft(targetTime);
@@ -123,8 +143,11 @@
         }
       };
 
-      setInterval(updateTimer, 1000);
-      updateTimer();
+      database.ref('bosses/' + bossName).on('value', (snapshot) => {
+        targetTime = new Date(snapshot.val() || new Date().getTime() + initialTime);
+        updateTimer();
+        setInterval(updateTimer, 1000);
+      });
 
       return container;
     };
