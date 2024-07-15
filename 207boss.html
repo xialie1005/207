@@ -188,6 +188,17 @@
       title.textContent = '九之王BOSS刷新倒計時';
       container.appendChild(title);
 
+      const currentTimeDisplay = document.createElement('div');
+      currentTimeDisplay.className = 'text-xl text-gray-700 mb-6';
+      container.appendChild(currentTimeDisplay);
+
+      const updateCurrentTime = () => {
+        const now = new Date();
+        currentTimeDisplay.textContent = `現在時間: ${formatDateTime(now)}`;
+      };
+      setInterval(updateCurrentTime, 1000);
+      updateCurrentTime();
+
       const timersContainer = document.createElement('div');
       timersContainer.className = 'flex flex-wrap justify-center w-full';
       container.appendChild(timersContainer);
@@ -327,16 +338,4 @@
     const bosses = [
       { name: 'cave 1' },
       { name: 'cave 2' },
-      { name: 'cave 3 left' },
-      { name: 'cave 3 right' },
-      { name: 'cave 4 up' },
-      { name: 'cave 4 down' },
-      { name: 'cave 5' },
-      { name: 'cave 6' },
-      { name: 'KON' },
-    ];
-
-    document.getElementById('app').appendChild(createBossTimers());
-  </script>
-</body>
-</html>
+      { name
