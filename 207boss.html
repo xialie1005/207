@@ -324,13 +324,16 @@
         });
       });
 
-       // 更新計時器的隊伍顯示
+      // 更新計時器的隊伍顯示
       const timersContainer = document.querySelectorAll('.flex.flex-col.items-center.mb-6.p-4.bg-white.shadow-md.rounded-lg.w-full');
       bosses.forEach((boss, index) => {
         const timer = timersContainer[index];
         const teamDisplay = timer.querySelector('.text-lg.font-semibold.text-gray-800.mb-2');
         teamDisplay.textContent = `隊伍: ${teams[index][0]}`;
       });
+
+      // 保存更新後的隊伍信息到 Firebase
+      database.ref('teams').set(teams);
     };
 
     let teams = [];
@@ -346,7 +349,33 @@
       { name: 'KON' },
     ];
 
-    document.getElementById('app').appendChild(createBossTimers());
+    const loadInitialData = () => {
+      // 從 Firebase 獲取初始隊伍數據
+      database.ref('teams').once('value').then((snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          teams = data;
+        } else {
+          // 如果 Firebase 中沒有數據，使用初始隊伍數據
+          teams = [
+            ['xPHxElite', 'SHICHIBUKAI', 'PromiseLand', 'Redfox', '大同大不同', 'NPH', '大同大不同', 'SPT', 'YOUZi', 'Redfox', '大同大不同'],
+            ['xPHxElite', 'SHICHIBUKAI', 'PromiseLand', 'Redfox', '大同大不同', 'NPH', '大同大不同', 'SPT', 'YOUZi', 'Redfox', '大同大不同'],
+            ['xPHxElite', 'SHICHIBUKAI', 'PromiseLand', 'Redfox', '大同大不同', 'NPH', '大同大不同', 'SPT', 'YOUZi', 'Redfox', '大同大不同'],
+            ['xPHxElite', 'SHICHIBUKAI', 'PromiseLand', 'Redfox', '大同大不同', 'NPH', '大同大不同', 'SPT', 'YOUZi', 'Redfox', '大同大不同'],
+            ['xPHxElite', 'SHICHIBUKAI', 'PromiseLand', 'Redfox', '大同大不同', 'NPH', '大同大不同', 'SPT', 'YOUZi', 'Redfox', '大同大不同'],
+            ['xPHxElite', 'SHICHIBUKAI', 'PromiseLand', 'Redfox', '大同大不同', 'NPH', '大同大不同', 'SPT', 'YOUZi', 'Redfox', '大同大不同'],
+            ['xPHxElite', 'SHICHIBUKAI', 'PromiseLand', 'Redfox', '大同大不同', 'NPH', '大同大不同', 'SPT', 'YOUZi', 'Redfox', '大同大不同'],
+            ['大同大不同', '大同大不同', '大同大不同', 'Redfox', '大同大不同', '大同大不同', '大同大不同', 'Redfox'],
+            ['大同大不同', 'PromiseLand', 'Redfox', 'YOUZi', '大同大不同', 'Redfox'],
+          ];
+          // 保存初始隊伍數據到 Firebase
+          database.ref('teams').set(teams);
+        }
+        document.getElementById('app').appendChild(createBossTimers());
+      });
+    };
+
+    loadInitialData();
   </script>
 </body>
 </html>
