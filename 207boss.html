@@ -325,7 +325,7 @@
         });
       });
 
-      // 更新計時器的隊伍顯示
+       // 更新計時器的隊伍顯示
       const timersContainer = document.querySelectorAll('.flex.flex-col.items-center.mb-6.p-4.bg-white.shadow-md.rounded-lg.w-full');
       bosses.forEach((boss, index) => {
         const timer = timersContainer[index];
@@ -338,4 +338,16 @@
     const bosses = [
       { name: 'cave 1' },
       { name: 'cave 2' },
-      { name
+      { name: 'cave 3 left' },
+      { name: 'cave 3 right' },
+      { name: 'cave 4 up' },
+      { name: 'cave 4 down' },
+      { name: 'cave 5' },
+      { name: 'cave 6' },
+      { name: 'KON' },
+    ];
+
+    document.getElementById('app').appendChild(createBossTimers());
+  </script>
+</body>
+</html>
